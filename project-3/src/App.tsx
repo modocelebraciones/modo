@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useForm, ValidationError } from '@formspree/react';
 import DiscoBall from '@/components/DiscoBall';
-
+ 
 const NAV = [
   { label: 'Filosofía', href: '#filosofia' },
   { label: 'Modo de trabajar', href: '#modo' },
   { label: 'Proyectos', href: '#proyectos' },
   { label: 'Contacto', href: '#contacto' },
 ];
-
+ 
 const PRINCIPLES = [
   {
     n: '01',
@@ -26,7 +26,7 @@ const PRINCIPLES = [
     body: 'Un presupuesto bien usado es una herramienta de diseño. Cada peso con intención.',
   },
 ];
-
+ 
 const WORK = [
   {
     n: '01',
@@ -54,20 +54,21 @@ const WORK = [
     body: 'El resultado es una experiencia auténtica. Sin guion, sin espectáculo. Solo decisiones bien tomadas.',
   },
 ];
-
+ 
 // --- Types ---
-
+ 
 interface Project {
   id: string;
   title: string;
   place: string;
   desc: string;
   img: string;
-  year?: string;
+  category: string;
+  year: number | null;
 }
-
+ 
 // --- Hooks ---
-
+ 
 function useReveal() {
   useEffect(() => {
     const els = document.querySelectorAll('.reveal');
@@ -90,7 +91,7 @@ function useReveal() {
     return () => io.disconnect();
   }, []);
 }
-
+ 
 function useScrolled(threshold = 24) {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
@@ -101,16 +102,16 @@ function useScrolled(threshold = 24) {
   }, [threshold]);
   return scrolled;
 }
-
+ 
 function useFoilShimmer(ref: React.RefObject<HTMLElement>) {
   useEffect(() => {
     const el = ref.current;
     if (!el || typeof window === 'undefined') return;
-
+ 
     let scrollY = window.scrollY;
     let pointerX = 0.5;
     let raf = 0;
-
+ 
     const apply = () => {
       raf = 0;
       const heroH = el.offsetHeight || 1;
@@ -121,19 +122,19 @@ function useFoilShimmer(ref: React.RefObject<HTMLElement>) {
       el.style.setProperty('--silver-bg-x', `${bgX}%`);
       el.style.setProperty('--silver-sheen-x', `${sheenX}%`);
     };
-
+ 
     const schedule = () => {
       if (raf) return;
       raf = requestAnimationFrame(apply);
     };
-
+ 
     const onScroll = () => { scrollY = window.scrollY; schedule(); };
     const onPointer = (e: PointerEvent) => {
       const rect = el.getBoundingClientRect();
       pointerX = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
       schedule();
     };
-
+ 
     apply();
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('pointermove', onPointer, { passive: true });
@@ -144,12 +145,12 @@ function useFoilShimmer(ref: React.RefObject<HTMLElement>) {
     };
   }, [ref]);
 }
-
+ 
 function useProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+ 
   useEffect(() => {
     fetch('/api/projects')
       .then((res) => {
@@ -166,12 +167,12 @@ function useProjects() {
         setLoading(false);
       });
   }, []);
-
+ 
   return { projects, loading, error };
 }
-
+ 
 // --- Components ---
-
+ 
 function Logo({ className = '' }: { className?: string }) {
   return (
     <span
@@ -182,11 +183,11 @@ function Logo({ className = '' }: { className?: string }) {
     </span>
   );
 }
-
+ 
 function Header() {
   const scrolled = useScrolled(40);
   const [open, setOpen] = useState(false);
-
+ 
   return (
     <header
       className={`fixed top-0 inset-x-0 z-50 transition-colors duration-500 ${
@@ -253,11 +254,11 @@ function Header() {
     </header>
   );
 }
-
+ 
 function Hero() {
   const heroRef = useRef<HTMLElement>(null);
   useFoilShimmer(heroRef);
-
+ 
   return (
     <section id="top" ref={heroRef} className="relative min-h-[100svh] flex flex-col bg-ink">
       <div className="absolute inset-0 -z-10">
@@ -270,7 +271,7 @@ function Hero() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/25 to-black/65" />
       </div>
-
+ 
       <div className="flex-1 flex items-end">
         <div className="mx-auto max-w-edge w-full px-6 md:px-10 pb-16 md:pb-24">
           <div className="max-w-3xl">
@@ -299,7 +300,7 @@ function Hero() {
           </div>
         </div>
       </div>
-
+ 
       <div className="relative">
         <div className="mx-auto max-w-edge w-full px-6 md:px-10 pb-6 md:pb-7">
           <div className="flex items-center justify-between text-[11px] tracking-[0.2em] uppercase text-white/55">
@@ -311,7 +312,7 @@ function Hero() {
     </section>
   );
 }
-
+ 
 function Manifesto() {
   return (
     <section className="py-28 md:py-40 bg-warm">
@@ -337,7 +338,7 @@ function Manifesto() {
     </section>
   );
 }
-
+ 
 function Philosophy() {
   return (
     <section id="filosofia" className="py-28 md:py-40 bg-paper">
@@ -352,7 +353,7 @@ function Philosophy() {
             <span className="text-mute">Nada más.</span>
           </h2>
         </div>
-
+ 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-px md:gap-0 border-t border-black/10">
           {PRINCIPLES.map((p, i) => (
             <div
@@ -373,7 +374,7 @@ function Philosophy() {
     </section>
   );
 }
-
+ 
 function Modo() {
   return (
     <section id="modo" className="py-28 md:py-40 bg-warm">
@@ -396,7 +397,7 @@ function Modo() {
             </p>
           </div>
         </div>
-
+ 
         <div className="border-t border-black/10">
           {WORK.map((s, i) => (
             <div
@@ -421,7 +422,7 @@ function Modo() {
     </section>
   );
 }
-
+ 
 function ProjectSkeleton() {
   return (
     <div className="animate-pulse">
@@ -436,15 +437,16 @@ function ProjectSkeleton() {
     </div>
   );
 }
-
+ 
 function Projects() {
   const { projects, loading, error } = useProjects();
+ 
   useEffect(() => {
     if (loading || projects.length === 0) return;
     const els = document.querySelectorAll('#proyectos .reveal:not(.is-visible)');
     els.forEach((el) => el.classList.add('is-visible'));
   }, [projects, loading]);
-
+ 
   return (
     <section id="proyectos" className="py-28 md:py-40 bg-paper">
       <div className="mx-auto max-w-edge px-6 md:px-10">
@@ -459,11 +461,11 @@ function Projects() {
           </div>
           <div className="col-span-12 md:col-span-6 md:col-start-7 md:pt-3">
             <p className="reveal reveal-d2 text-lg leading-relaxed text-ink/70 font-light">
-              Cada proyecto responde distinto. Construyamos tu versión.
+              Cada proyecto responde a una dirección creativa distinta. Solo imágenes y decisiones.
             </p>
           </div>
         </div>
-
+ 
         {error ? (
           <p className="text-base text-ink/50 font-light">{error}</p>
         ) : (
@@ -485,14 +487,26 @@ function Projects() {
                         className="w-full aspect-[4/3] object-cover transition-transform duration-[1.4s] ease-smooth group-hover:scale-[1.02]"
                       />
                     </div>
-                    <figcaption className="mt-5 flex items-baseline justify-between gap-6">
-                      <div>
+                    <figcaption className="mt-5">
+                      <div className="flex items-start justify-between gap-6">
                         <h3 className="font-display font-medium tracking-tight text-ink text-lg">
                           {p.title}
                         </h3>
-                        <p className="text-sm text-mute mt-1">{p.place}</p>
+                        <div className="flex items-center gap-3 shrink-0 pt-1">
+                          {p.category && (
+                            <span className="text-[11px] tracking-[0.2em] uppercase text-mute border border-black/15 px-2 py-1">
+                              {p.category}
+                            </span>
+                          )}
+                          {p.year && (
+                            <span className="text-[11px] tracking-[0.2em] uppercase text-mute2">
+                              {p.year}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-sm text-ink/65 font-light text-right max-w-xs">{p.desc}</p>
+                      <p className="text-sm text-mute mt-1">{p.place}</p>
+                      <p className="text-sm text-ink/65 font-light mt-3">{p.desc}</p>
                     </figcaption>
                   </figure>
                 ))}
@@ -502,13 +516,13 @@ function Projects() {
     </section>
   );
 }
-
+ 
 function Contact() {
   const [state, handleSubmit] = useForm('mwvgyrwk');
-
+ 
   const fieldClass =
     'w-full bg-transparent border-b border-black/15 py-4 text-base text-ink placeholder:text-mute2 focus:outline-none focus:border-ink transition-colors duration-300';
-
+ 
   return (
     <section id="contacto" className="py-28 md:py-40 bg-warm">
       <div className="mx-auto max-w-edge px-6 md:px-10">
@@ -529,7 +543,7 @@ function Contact() {
               <p className="tracking-wide">Por encargo · Cupos limitados</p>
             </div>
           </div>
-
+ 
           <div className="col-span-12 md:col-span-6 md:col-start-7">
             {state.succeeded ? (
               <div className="reveal is-visible border border-black/10 p-10 md:p-14 text-center">
@@ -594,7 +608,7 @@ function Contact() {
     </section>
   );
 }
-
+ 
 function Footer() {
   return (
     <footer className="bg-ink text-paper">
@@ -643,10 +657,10 @@ function Footer() {
     </footer>
   );
 }
-
+ 
 export default function App() {
   useReveal();
-
+ 
   return (
     <div className="relative bg-paper text-ink antialiased">
       <Header />
@@ -663,3 +677,4 @@ export default function App() {
     </div>
   );
 }
+ 
