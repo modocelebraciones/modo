@@ -63,6 +63,7 @@ interface Project {
   place: string;
   desc: string;
   img: string;
+  year?: string;
 }
 
 // --- Hooks ---
