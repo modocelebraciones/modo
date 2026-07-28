@@ -274,8 +274,9 @@ function Hero() {
               A tu modo.
             </h1>
             <p className="reveal reveal-d2 mt-8 md:mt-10 max-w-xl text-base md:text-lg leading-relaxed text-white/85 font-light">
-              Organizamos matrimonios desde el afán de personalizar la experiencia y
-              mantener un estilo cuidadoso en cada decisión. Sin fórmulas. Con más criterio.
+              Cada matrimonio que hacemos empieza por entender
+              a las personas que lo van a vivir.
+              Todo lo demás viene después.
             </p>
             <div className="reveal reveal-d3 mt-9 md:mt-12">
               <a
