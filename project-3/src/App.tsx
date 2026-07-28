@@ -438,6 +438,11 @@ function ProjectSkeleton() {
 
 function Projects() {
   const { projects, loading, error } = useProjects();
+  useEffect(() => {
+    if (loading || projects.length === 0) return;
+    const els = document.querySelectorAll('#proyectos .reveal:not(.is-visible)');
+    els.forEach((el) => el.classList.add('is-visible'));
+  }, [projects, loading]);
 
   return (
     <section id="proyectos" className="py-28 md:py-40 bg-paper">
@@ -453,7 +458,7 @@ function Projects() {
           </div>
           <div className="col-span-12 md:col-span-6 md:col-start-7 md:pt-3">
             <p className="reveal reveal-d2 text-lg leading-relaxed text-ink/70 font-light">
-              Cada proyecto responde a una dirección creativa distinta. Solo imágenes y decisiones.
+              Cada proyecto responde distinto. Construyamos tu versión.
             </p>
           </div>
         </div>
