@@ -3,26 +3,27 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 interface NotionRichText {
   plain_text: string;
 }
-
 interface NotionFile {
   type: 'external' | 'file';
   external?: { url: string };
   file?: { url: string };
 }
-
+interface NotionSelect {
+  name: string;
+}
 interface NotionProperty {
   type: string;
   title?: NotionRichText[];
   rich_text?: NotionRichText[];
   files?: NotionFile[];
   url?: string;
+  select?: NotionSelect;
+  number?: number;
 }
-
 interface NotionPage {
   id: string;
   properties: Record<string, NotionProperty>;
 }
-
 interface NotionResponse {
   results: NotionPage[];
   next_cursor: string | null;
@@ -44,13 +45,21 @@ function getImage(prop?: NotionProperty): string {
   return file.type === 'external' ? (file.external?.url ?? '') : (file.file?.url ?? '');
 }
 
+function getSelect(prop?: NotionProperty): string {
+  if (!prop || prop.type !== 'select') return '';
+  return prop.select?.name ?? '';
+}
+
+function getNumber(prop?: NotionProperty): number | null {
+  if (!prop || prop.type !== 'number') return null;
+  return prop.number ?? null;
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { NOTION_KEY, NOTION_DATABASE_ID } = process.env;
-
   if (!NOTION_KEY || !NOTION_DATABASE_ID) {
     return res.status(500).json({ error: 'Missing Notion environment variables' });
   }
-
   try {
     const notionRes = await fetch(
       `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`,
@@ -69,22 +78,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }),
       }
     );
-
     if (!notionRes.ok) {
       const error = await notionRes.text();
       return res.status(notionRes.status).json({ error });
     }
-
     const data: NotionResponse = await notionRes.json();
-
     const projects = data.results.map((page) => ({
       id: page.id,
       title: getText(page.properties['Proyecto']),
       place: getText(page.properties['Ubicación']),
       desc: getText(page.properties['Descripción']),
       img: getImage(page.properties['Portada']),
+      category: getSelect(page.properties['Categoría']),
+      year: getNumber(page.properties['Año']),
     }));
-
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
     return res.status(200).json(projects);
   } catch (err) {
