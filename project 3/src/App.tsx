@@ -294,8 +294,8 @@ function Hero() {
       <div className="relative">
         <div className="mx-auto max-w-edge w-full px-6 md:px-10 pb-6 md:pb-7">
           <div className="flex items-center justify-between text-[11px] tracking-[0.2em] uppercase text-white/55">
-            <span>Santiago · Chile</span>
-            <span>Scroll</span>
+            <span>BASE EN SANTIAGO</span>
+            <span>A TODO CHILE</span>
           </div>
         </div>
       </div>
