@@ -55,32 +55,17 @@ const WORK = [
   },
 ];
 
-const PROJECTS = [
-  {
-    img: 'https://images.pexels.com/photos/3593922/pexels-photo-3593922.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    title: 'Mesa larga',
-    place: 'Valle de Casablanca',
-    desc: 'Banquete íntimo para 48. Mesa única, vajilla sin ornamentación, luz cenital.',
-  },
-  {
-    img: 'https://images.pexels.com/photos/169198/pexels-photo-169198.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    title: 'Ceremonia civil',
-    place: 'Casa de campo, Colina',
-    desc: 'Ceremonia laica en jardín. Sin protocolo. Palabras, comida y música en vivo.',
-  },
-  {
-    img: 'https://images.pexels.com/photos/265722/pexels-photo-265722.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    title: 'Cena de ensayo',
-    place: 'Loft industrial, Santiago',
-    desc: 'Reunión previa para 30. Mesa comunal, cocina abierta, conversación como programa.',
-  },
-  {
-    img: 'https://images.pexels.com/photos/313707/pexels-photo-313707.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    title: 'Diez años',
-    place: 'Casa particular, Vitacura',
-    desc: 'Aniversario sin agenda. Una noche diseñada alrededor de una sola mesa.',
-  },
-];
+// --- Types ---
+
+interface Project {
+  id: string;
+  title: string;
+  place: string;
+  desc: string;
+  img: string;
+}
+
+// --- Hooks ---
 
 function useReveal() {
   useEffect(() => {
@@ -141,11 +126,7 @@ function useFoilShimmer(ref: React.RefObject<HTMLElement>) {
       raf = requestAnimationFrame(apply);
     };
 
-    const onScroll = () => {
-      scrollY = window.scrollY;
-      schedule();
-    };
-
+    const onScroll = () => { scrollY = window.scrollY; schedule(); };
     const onPointer = (e: PointerEvent) => {
       const rect = el.getBoundingClientRect();
       pointerX = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
@@ -162,6 +143,33 @@ function useFoilShimmer(ref: React.RefObject<HTMLElement>) {
     };
   }, [ref]);
 }
+
+function useProjects() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/projects')
+      .then((res) => {
+        if (!res.ok) throw new Error(`Error ${res.status}`);
+        return res.json();
+      })
+      .then((data: Project[]) => {
+        setProjects(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Error loading projects:', err);
+        setError('No se pudieron cargar los proyectos.');
+        setLoading(false);
+      });
+  }, []);
+
+  return { projects, loading, error };
+}
+
+// --- Components ---
 
 function Logo({ className = '' }: { className?: string }) {
   return (
@@ -318,9 +326,9 @@ function Manifesto() {
               Nuestra convicción.
             </h2>
             <p className="reveal reveal-d2 mt-6 text-base md:text-lg leading-relaxed text-ink/70 font-light">
-              Tu matrimonio no debería parecerse al de nadie más. MODO existe para que cada decisión — el lugar, la comida,
-              la luz, el orden del día — responda a quiénes son ustedes.
-              Las tendencias pasan. Ustedes se quedan.
+              Tu matrimonio no debería parecerse al de nadie más. MODO existe para que cada
+              decisión — el lugar, la comida, la luz, el orden del día — responda a quiénes
+              son ustedes. Las tendencias pasan. Ustedes se quedan.
             </p>
           </div>
         </div>
@@ -338,9 +346,9 @@ function Philosophy() {
             Filosofía
           </p>
           <h2 className="reveal reveal-d1 font-display font-medium tracking-tighter2 text-ink text-4xl md:text-6xl leading-[1.02] max-w-3xl">
-            Tres principios
+            Tres principios.
             <br />
-            <span className="text-mute">que nos guían en cada proyecto.</span>
+            <span className="text-mute">Nada más.</span>
           </h2>
         </div>
 
@@ -413,7 +421,24 @@ function Modo() {
   );
 }
 
+function ProjectSkeleton() {
+  return (
+    <div className="animate-pulse">
+      <div className="bg-warm2 aspect-[4/3] w-full" />
+      <div className="mt-5 flex items-baseline justify-between gap-6">
+        <div className="space-y-2">
+          <div className="h-4 bg-warm2 rounded w-32" />
+          <div className="h-3 bg-warm2 rounded w-24" />
+        </div>
+        <div className="h-3 bg-warm2 rounded w-40" />
+      </div>
+    </div>
+  );
+}
+
 function Projects() {
+  const { projects, loading, error } = useProjects();
+
   return (
     <section id="proyectos" className="py-28 md:py-40 bg-paper">
       <div className="mx-auto max-w-edge px-6 md:px-10">
@@ -428,38 +453,45 @@ function Projects() {
           </div>
           <div className="col-span-12 md:col-span-6 md:col-start-7 md:pt-3">
             <p className="reveal reveal-d2 text-lg leading-relaxed text-ink/70 font-light">
-              Cada proyecto responde a una dirección creativa distinta. Sin marcos. Solo
-              imágenes y decisiones.
+              Cada proyecto responde a una dirección creativa distinta. Solo imágenes y decisiones.
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-16 md:gap-y-24">
-          {PROJECTS.map((p, i) => (
-            <figure
-              key={p.title}
-              className={`reveal reveal-d${(i % 2) + 1} ${i % 2 === 1 ? 'md:mt-24' : ''}`}
-            >
-              <div className="overflow-hidden bg-warm2">
-                <img
-                  src={p.img}
-                  alt={p.title}
-                  loading="lazy"
-                  className="w-full aspect-[4/3] object-cover transition-transform duration-[1.4s] ease-smooth group-hover:scale-[1.02]"
-                />
-              </div>
-              <figcaption className="mt-5 flex items-baseline justify-between gap-6">
-                <div>
-                  <h3 className="font-display font-medium tracking-tight text-ink text-lg">
-                    {p.title}
-                  </h3>
-                  <p className="text-sm text-mute mt-1">{p.place}</p>
-                </div>
-                <p className="text-sm text-ink/65 font-light text-right max-w-xs">{p.desc}</p>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
+        {error ? (
+          <p className="text-base text-ink/50 font-light">{error}</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-16 md:gap-y-24">
+            {loading
+              ? Array.from({ length: 4 }).map((_, i) => (
+                  <ProjectSkeleton key={i} />
+                ))
+              : projects.map((p, i) => (
+                  <figure
+                    key={p.id}
+                    className={`reveal reveal-d${(i % 2) + 1} ${i % 2 === 1 ? 'md:mt-24' : ''}`}
+                  >
+                    <div className="overflow-hidden bg-warm2">
+                      <img
+                        src={p.img}
+                        alt={p.title}
+                        loading="lazy"
+                        className="w-full aspect-[4/3] object-cover transition-transform duration-[1.4s] ease-smooth group-hover:scale-[1.02]"
+                      />
+                    </div>
+                    <figcaption className="mt-5 flex items-baseline justify-between gap-6">
+                      <div>
+                        <h3 className="font-display font-medium tracking-tight text-ink text-lg">
+                          {p.title}
+                        </h3>
+                        <p className="text-sm text-mute mt-1">{p.place}</p>
+                      </div>
+                      <p className="text-sm text-ink/65 font-light text-right max-w-xs">{p.desc}</p>
+                    </figcaption>
+                  </figure>
+                ))}
+          </div>
+        )}
       </div>
     </section>
   );
@@ -518,11 +550,7 @@ function Contact() {
                       autoComplete="email"
                       className={fieldClass}
                     />
-                    <ValidationError
-                      field="email"
-                      errors={state.errors}
-                      className="mt-1 text-xs text-red-700"
-                    />
+                    <ValidationError field="email" errors={state.errors} className="mt-1 text-xs text-red-700" />
                   </label>
                 </div>
                 <div className="reveal reveal-d1 grid grid-cols-1 sm:grid-cols-2 gap-x-6">
@@ -539,16 +567,8 @@ function Contact() {
                   <span className="text-[11px] tracking-[0.2em] uppercase text-mute">
                     Cuéntanos sobre tu celebración
                   </span>
-                  <textarea
-                    name="mensaje"
-                    rows={4}
-                    className={`${fieldClass} resize-none`}
-                  />
-                  <ValidationError
-                    field="mensaje"
-                    errors={state.errors}
-                    className="mt-1 text-xs text-red-700"
-                  />
+                  <textarea name="mensaje" rows={4} className={`${fieldClass} resize-none`} />
+                  <ValidationError field="mensaje" errors={state.errors} className="mt-1 text-xs text-red-700" />
                 </label>
                 <div className="reveal reveal-d3 pt-6">
                   <button
@@ -585,10 +605,7 @@ function Footer() {
             <ul className="space-y-3">
               {NAV.map((n) => (
                 <li key={n.href}>
-                  <a
-                    href={n.href}
-                    className="text-sm text-paper/75 hover:text-paper link-underline"
-                  >
+                  <a href={n.href} className="text-sm text-paper/75 hover:text-paper link-underline">
                     {n.label}
                   </a>
                 </li>
