@@ -317,10 +317,9 @@ function Manifesto() {
               Nuestra convicción.
             </h2>
             <p className="reveal reveal-d2 mt-6 text-base md:text-lg leading-relaxed text-ink/70 font-light">
-              Tu matrimonio no debería parecerse al de nadie más. MODO existe para que cada
-              decisión — el lugar, la comida, la luz, el orden del día — responda a quiénes son
-              ustedes. Aprovechar tendencias, pero escogerlas acorde a gustos e intereses únicos
-              de quienes brillan por una noche.
+              Tu matrimonio no debería parecerse al de nadie más. MODO existe para que cada decisión — el lugar, la comida,
+              la luz, el orden del día — responda a quiénes son ustedes.
+              Las tendencias pasan. Ustedes se quedan.
             </p>
           </div>
         </div>
@@ -338,9 +337,9 @@ function Philosophy() {
             Filosofía
           </p>
           <h2 className="reveal reveal-d1 font-display font-medium tracking-tighter2 text-ink text-4xl md:text-6xl leading-[1.02] max-w-3xl">
-            Tres principios.
+            Tres principios
             <br />
-            <span className="text-mute">Nada más.</span>
+            <span className="text-mute">que nos guían en cada proyecto.</span>
           </h2>
         </div>
 
